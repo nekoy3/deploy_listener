@@ -1,0 +1,13 @@
+# /etc/systemd/system/deploy_listener.service
+[Unit]
+Description=Deploy Listener Service
+
+[Service]
+ExecStart=/usr/bin/python3 /path/to/deploy_listener.py
+User=dp_listener
+Group=dp_listener
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
