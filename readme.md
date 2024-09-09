@@ -53,3 +53,5 @@
 ## よてい
 
    curlでmachinesにテキストファイル突っ込める/編集できるようにしようかな
+   machinesの.txtに変数が使えるようにしようかな
+   `echo 'password' | sudo -S systemctl restart xxx`とかが使えるように
