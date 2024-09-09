@@ -52,6 +52,10 @@
     
 ## よてい
 
-   curlでmachinesにテキストファイル突っ込める/編集できるようにしようかな
-   machinesの.txtに変数が使えるようにしようかな
-   `echo 'password' | sudo -S systemctl restart xxx`とかが使えるように
+   curlでmachinesにテキストファイル突っ込める/編集できるようにしようかな  
+     
+   machinesの.txtに変数が使えるようにしようかな  
+   `echo 'password' | sudo -S systemctl restart xxx`とかが使えるように  
+
+   これ自身のデプロイだとcurlで応答する前にrestartしてしまうから、restartのために別プロセスで時間差かけて再起動するとかしないといけないかも  
+   めんどいからうちはtxtファイルにwebhook URL直打ちしてgit pullの履歴だけ通知するようにした
