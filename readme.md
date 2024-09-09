@@ -39,10 +39,14 @@
     ```
 
 ## 使用方法
-    ```bash
+
+   curlコマンドを実行
+
+ ```bash
     curl -X POST http://これ動いてるサーバ:5000/deploy \
     -H "Content-Type: application/json" \
     -d '{"password": "your_secret_password"}'
-    ```
-    を飛ばすことで、machinesのxxx.txt一行目にあるpasswordと今回渡したpasswordを比較し、一致していればそのマシンにssh接続しデプロイを実行する。
+ ```
+    
+   を飛ばすことで、machinesのxxx.txt一行目にあるpasswordと今回渡したpasswordを比較し、一致していればそのマシンにssh接続しデプロイを実行する。
     
