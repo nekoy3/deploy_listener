@@ -3,6 +3,7 @@
 Description=Deploy Listener Service
 
 [Service]
+WorkingDirectory=/path/to/
 ExecStart=/usr/bin/python3 /path/to/deploy_listener.py
 User=dp_listener
 Group=dp_listener

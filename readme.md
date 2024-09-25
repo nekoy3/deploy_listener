@@ -9,7 +9,7 @@
 - `webhook.txt`: Discord Webhook URLを書いておくファイル。通知先のDiscordチャンネルを指定する。
 - `machines/template.txt`: 各ホストの設定情報と実行コマンドを含むテンプレートファイル。ファイル名はホスト名にするといいかも。
 
-## 使用方法
+## セットアップ
 
 1. **テンプレートの準備**:
 
@@ -37,3 +37,27 @@
     sudo systemctl enable deploy_listener.service
     sudo systemctl start deploy_listener.service
     ```
+
+## 使用方法
+
+   curlコマンドを実行
+
+ ```bash
+    curl -X POST http://これ動いてるサーバ:5000/deploy \
+    -H "Content-Type: application/json" \
+    -d '{"password": "your_secret_password"}'
+ ```
+    
+   を飛ばすことで、machinesのxxx.txt一行目にあるpasswordと今回渡したpasswordを比較し、一致していればそのマシンにssh接続しデプロイを実行する。
+    
+## よてい
+
+   curlでmachinesにテキストファイル突っ込める/編集できるようにしようかな  
+     
+   machinesの.txtに変数が使えるようにしようかな  
+   `echo 'password' | sudo -S systemctl restart xxx`とかが使えるように  
+
+   これ自身のデプロイだとcurlで応答する前にrestartしてしまうから、restartのために別プロセスで時間差かけて再起動するとかしないといけないかも  
+   めんどいからうちはtxtファイルにwebhook URL直打ちしてgit pullの履歴だけ通知するようにした
+
+   sshのパスワードが平文保存なので、暗号化させたい所（優先度高）
