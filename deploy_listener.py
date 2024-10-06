@@ -71,7 +71,7 @@ def deploy():
             config = load_machine_config(os.path.join(machines_dir, filename))
             
             # リクエストパスワードが一致するか確認
-            if config.get('request_password') == request_password:
+            if config.get('request_password') == config['request_password']:
                 ssh_host = config.get('ssh_host')
                 ssh_user = config.get('ssh_user')
                 ssh_password = config.get('ssh_password')
@@ -87,4 +87,4 @@ def deploy():
     return jsonify({'status': 'error', 'message': 'Password does not match any machine'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=80)
