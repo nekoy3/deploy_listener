@@ -62,10 +62,12 @@ def execute_ssh_command(host, username, password, commands):
 @app.route('/deploy', methods=['POST'])
 def deploy():
     # POSTリクエストからパスワードを取得
-    request_password = request.form.get('password')
+    request_password = request.get_json().get('password')
+    print("Deploy request key --> " + str(request_password))
     
     # machinesディレクトリ内の各ホストファイルをチェック
     machines_dir = './machines'
+    print(os.listdir(machines_dir))
     for filename in os.listdir(machines_dir):
         if filename.endswith('.txt'):
             config = load_machine_config(os.path.join(machines_dir, filename))
