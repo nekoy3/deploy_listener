@@ -12,6 +12,13 @@ def load_webhook(filename):
 
 WEBHOOK_URL = load_webhook("webhook.txt")
 
+def load_keypath(filename):
+    with open(filename, 'r') as file:
+        for line in file:
+            return line
+    
+KEYPATH = load_keypath("keypath.txt")
+
 # machinesディレクトリ内のホスト情報を読み込む関数
 def load_machine_config(filename):
     config = {}
@@ -41,10 +48,10 @@ def send_to_discord(title, description, color=0xFFA500):  # オレンジ色
         print(f"Failed to send message to Discord: {response.status_code}, {response.text}")
 
 # SSHでコマンドを実行する関数
-def execute_ssh_command(host, username, password, commands):
+def execute_ssh_command(host, username, commands):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(hostname=host, username=username, password=password)
+    ssh.connect(hostname=host, username=username, key_filename=KEYPATH)
     try:
         log_lines = [f"{host}を{username}でデプロイ実行\n\n----------------------------\n"]
         for command in commands:
@@ -76,12 +83,11 @@ def deploy():
             if config.get('request_password') == config['request_password']:
                 ssh_host = config.get('ssh_host')
                 ssh_user = config.get('ssh_user')
-                ssh_password = config.get('ssh_password')
                 commands = config.get('commands', [])
 
-                if ssh_host and ssh_user and ssh_password:
+                if ssh_host and ssh_user:
                     # SSH接続してコマンドを実行
-                    execute_ssh_command(ssh_host, ssh_user, ssh_password, commands)
+                    execute_ssh_command(ssh_host, ssh_user, commands)
                     return jsonify({'status': 'success', 'message': f'Commands executed on {ssh_host}'})
                 else:
                     return jsonify({'status': 'error', 'message': 'Invalid SSH configuration'})
