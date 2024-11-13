@@ -63,13 +63,50 @@
  ```
     
    を飛ばすことで、machinesのxxx.txt一行目にあるpasswordと今回渡したpasswordを比較し、一致していればそのマシンにssh接続しデプロイを実行する。
+
+## デプロイ時のsudoコマンド実行について
+
+   `echo 'password' | sudo -S systemctl restart xxx`
+   のように、パスワードを平文でsudo -Sに渡して実行することは可能だったが、危険なためNOPASSWD設定を推奨。
+   ```bash
+   $ sudo visudo
+   ```
+   で以下のように設定する。
+   ```bash
+   # User privilege specification
+root    ALL=(ALL:ALL) ALL
+
+# Members of the admin group may gain root privileges
+%admin ALL=(ALL) ALL
+
+# Allow members of group sudo to execute any command
+%sudo   ALL=(ALL:ALL) ALL
+
+# See sudoers(5) for more information on "@include" directives:
+user ALL=(ALL) NOPASSWD: /bin/git pull
+user ALL=(ALL) NOPASSWD: /bin/systemctl restart nsd
+
+@includedir /etc/sudoers.d
+   ```
+   sudo時にパスワード認証が不要となるため、万が一NOPASSWD実行できても問題が無いと判断できたものだけ設定する。    
+
+   例：
+   ```
+   user ALL=(ALL) NOPASSWD: /bin/git pull
+   user ALL=(ALL) NOPASSWD: /bin/systemctl restart nsd
+   ```
+   の部分は「ユーザuserでsudo git pullとsudo systemctl restart nsdのみパスワード不要で実行する」という設定。
+   また、
+   ```
+   %sudo   ALL=(ALL:ALL) ALL
+   ```
+   より下でなければ、sudoの実行権限があるユーザ（sudoグループのユーザ）はすべてパスワードありで実行できる権限で上書きされて、NOPASSWDが効果を発揮しないため注意。
+
+
     
 ## よてい
 
    curlでmachinesにテキストファイル突っ込める/編集できるようにしようかな  
-     
-   machinesの.txtに変数が使えるようにしようかな  
-   `echo 'password' | sudo -S systemctl restart xxx`とかが使えるように  
 
    これ自身のデプロイだとcurlで応答する前にrestartしてしまうから、restartのために別プロセスで時間差かけて再起動するとかしないといけないかも  
    めんどいからうちはtxtファイルにwebhook URL直打ちしてgit pullの履歴だけ通知するようにした
