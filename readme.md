@@ -15,21 +15,35 @@
 
    `machines/template.txt` をコピーして、ホストごとの設定ファイルを作成する。
 
-2. **Webhookの設定**:
+2. **鍵の準備**:
+
+   このデプロイリスナが動作するマシンで鍵ペアを作っておき、ssh-copy-idで共有しておく。
+   何となくデフォルトのid_rsaではなく、deploy_keyというファイルを作ってやっているが、id_rsaでもいいと思う。
+   -m PEMしておかないとparamikoがinvalid key判定してssh接続できないので注意
+   ```bash
+   $ ssh-keygen -t rsa -m PEM -C "deploy.mynk.home" -f ~/.ssh/deploy_key
+   $ ssh-copy-id -i ~/.ssh/deploy_key.pub ユーザ名@ホスト名(user@example.com)
+   ```
+   接続確認 Permission Deniedが出たら鍵交換ミスってるかも
+   ```bash
+   $ ssh -i ~/.ssh/deploy_key user@example.com 'echo "success"'
+   ```
+
+3. **Webhookの設定**:
 
    `webhook.txt` にDiscordのWebhook URLを設定します。（ﾛｸﾞﾌｧｲﾙを用意していないので、Discordに飛ばさないとコマンドのログが見れない）（現状）
 
-3. **ライブラリのインストール**:
+4. **ライブラリのインストール**:
    ```bash
    pip install flask paramiko requests
    ```
 
-4. **権限周りの設定**:
+5. **権限周りの設定**:
 
     全てのファイルをdp_listener所有にする。
     `sudo chown dp_listener:dp_listener`
 
-5. **service化**
+6. **service化**
 
     /etc/systemd/system/deploy_listener.service を設置する。
     ```bash
@@ -43,7 +57,7 @@
    curlコマンドを実行
 
  ```bash
-    curl -X POST http://これ動いてるサーバ:5000/deploy \
+    curl -X POST http://これ動いてるサーバ/deploy \
     -H "Content-Type: application/json" \
     -d '{"password": "your_secret_password"}'
  ```
@@ -59,5 +73,3 @@
 
    これ自身のデプロイだとcurlで応答する前にrestartしてしまうから、restartのために別プロセスで時間差かけて再起動するとかしないといけないかも  
    めんどいからうちはtxtファイルにwebhook URL直打ちしてgit pullの履歴だけ通知するようにした
-
-   sshのパスワードが平文保存なので、暗号化させたい所（優先度高）
