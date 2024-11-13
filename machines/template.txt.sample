@@ -1,7 +1,6 @@
 request_password=POSTリクエストでpasswordの項目で飛んできた時に対応する文字列
 ssh_host=対象ホスト名
 ssh_user=ユーザ名
-ssh_password=パスワード
 echo "ここからデプロイ用のコマンドを書いていく"
 echo "行ごとに独立したコマンドとして実行"
 echo "Hello World!!"
