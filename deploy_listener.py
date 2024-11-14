@@ -8,12 +8,12 @@ import ast
 def load_webhook(filename):
     with open(filename, 'r') as file:
         for line in file:
-            return line
+            return line.rstrip()
 
 def load_keypath(filename):
     with open(filename, 'r') as file:
         for line in file:
-            return line
+            return line.rstrip()
 
 app = Flask(__name__)
 WEBHOOK_URL = load_webhook("webhook.txt")
