@@ -1,0 +1,20 @@
+name: Notify Deployment Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send deployment notification
+        run: |
+          curl -X POST https://deploy.nekoy3.net/deploy \
+            -H "Content-Type: application/json" \
+            -d '{"password": "${{ secrets.DEPLOY_PASSWORD }}"}'
+        env:
+          DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
