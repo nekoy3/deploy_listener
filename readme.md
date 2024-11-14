@@ -29,6 +29,10 @@
    ```bash
    $ ssh -i ~/.ssh/deploy_key user@example.com 'echo "success"'
    ```
+   deploy_lister内に`keypath.txt`を設置しキーの場所をフルパスで入力しておく。
+   ```
+   /home/ユーザ名/.ssh/deploy_key
+   ```
 
 3. **Webhookの設定**:
 
