@@ -107,7 +107,4 @@ user ALL=(ALL) NOPASSWD: /bin/systemctl restart nsd
     
 ## よてい
 
-   curlでmachinesにテキストファイル突っ込める/編集できるようにしようかな  
-
-   これ自身のデプロイだとcurlで応答する前にrestartしてしまうから、restartのために別プロセスで時間差かけて再起動するとかしないといけないかも  
-   めんどいからうちはtxtファイルにwebhook URL直打ちしてgit pullの履歴だけ通知するようにした
+   curlでmachinesにデータ追加/編集できるようにしようかな  
