@@ -1,36 +1,43 @@
 from flask import Flask, request, jsonify
 import requests
 import paramiko
+import csv
 import os
-
-app = Flask(__name__)
+import ast
 
 def load_webhook(filename):
     with open(filename, 'r') as file:
         for line in file:
             return line
 
-WEBHOOK_URL = load_webhook("webhook.txt")
-
 def load_keypath(filename):
     with open(filename, 'r') as file:
         for line in file:
             return line
-    
-KEYPATH = load_keypath("keypath.txt")
 
-# machinesディレクトリ内のホスト情報を読み込む関数
-def load_machine_config(filename):
-    config = {}
-    with open(filename, 'r') as file:
-        lines = file.readlines()
-        for line in lines:
-            if '=' in line:
-                key, value = line.strip().split('=', 1)
-                config[key] = value
-            else:
-                config.setdefault('commands', []).append(line.strip())
-    return config
+app = Flask(__name__)
+WEBHOOK_URL = load_webhook("webhook.txt")
+KEYPATH = load_keypath("keypath.txt")
+CSVPATH = "machines.csv"
+
+def check_csv(filename):
+    if not os.path.exists(filename):
+        # ファイルが存在しない場合はヘッダを追加して生成
+        with open(filename, mode="w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(headers)
+            print(f"{filename} ファイルが作成され、ヘッダが追加されました。\nマシンを追加してください。\n")
+
+def load_csv(filename):
+    #csvファイルを読み取る
+    data = []
+    with open(filename, mode="r", newline="") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            # scripts列の文字列をリストに変換
+            row["scripts"] = ast.literal_eval(row["scripts"])
+            data.append(row)
+    return data
 
 # Discordメッセージの送信
 def send_to_discord(title, description, color=0xFFA500):  # オレンジ色
@@ -68,31 +75,28 @@ def execute_ssh_command(host, username, commands):
 
 @app.route('/deploy', methods=['POST'])
 def deploy():
-    # POSTリクエストからパスワードを取得
-    request_password = request.get_json().get('password')
-    print("Deploy request key --> " + str(request_password))
+    # POSTリクエストからidを取得
+    post_request_id = request.get_json().get('password')
+    print("Deploy request id --> " + str(post_request_id))
     
-    # machinesディレクトリ内の各ホストファイルをチェック
-    machines_dir = './machines'
-    print(os.listdir(machines_dir))
-    for filename in os.listdir(machines_dir):
-        if filename.endswith('.txt'):
-            config = load_machine_config(os.path.join(machines_dir, filename))
-            
-            # リクエストパスワードが一致するか確認
-            if config.get('request_password') == config['request_password']:
-                ssh_host = config.get('ssh_host')
-                ssh_user = config.get('ssh_user')
-                commands = config.get('commands', [])
+    # CSVファイルを読み取る
+    data_lines = load_csv(CSVPATH)
+    # request_id, ssh_host, ssh_user, scripts
+    for l in data_lines:
+        print(l['request_id'])
+        if post_request_id == l['request_id']:
+            ssh_host = l['ssh_host']
 
-                if ssh_host and ssh_user:
-                    # SSH接続してコマンドを実行
-                    execute_ssh_command(ssh_host, ssh_user, commands)
-                    return jsonify({'status': 'success', 'message': f'Commands executed on {ssh_host}'})
-                else:
-                    return jsonify({'status': 'error', 'message': 'Invalid SSH configuration'})
+            if ssh_host and l['ssh_user']:
+                # SSH接続してコマンドを実行
+                execute_ssh_command(l['ssh_host'], l['ssh_user'], l['scripts'])
+                return jsonify({'status': 'success', 'message': f'Commands executed on {ssh_host}'})
+            else:
+                return jsonify({'status': 'error', 'message': 'Invalid SSH configuration'})
     
     return jsonify({'status': 'error', 'message': 'Password does not match any machine'})
 
 if __name__ == '__main__':
+    #csvファイルが存在しなければ作成し終了する。
+    #もしくは作成プログラムの実行をうながす
     app.run(host='0.0.0.0', port=80)
